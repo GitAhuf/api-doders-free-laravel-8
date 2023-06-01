@@ -6,9 +6,11 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
+use App\Traits\Apitrait;
+
 class Post extends Model
 {
-    use HasFactory;
+    use HasFactory, Apitrait;
 
     const BORRADOR = 1;
     const PUBLICADO = 2;
