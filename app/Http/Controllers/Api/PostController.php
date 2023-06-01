@@ -9,6 +9,11 @@ use Illuminate\Http\Request;
 
 class PostController extends Controller
 {
+
+    public function __construct()
+    {
+        $this->middleware('auth:api')->except(['index', 'show']);
+    }
     /**
      * Display a listing of the resource.
      *
@@ -30,17 +35,22 @@ class PostController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
-    {
-        $request->validate([
+    {   
+        return auth()->user();
+        $data = $request->validate([
             'name' => 'required|max:255',
             'slug' => 'required|max:255|unique:posts',
             'extract' => 'required',
             'body' => 'required',
-            'category_id' => 'required|exists:categories,id',
-            'user_id' => 'required|exists:users,id'
+            'category_id' => 'required|exists:categories,id',            
         ]);
+
+        $user = auth()->user();
+
+        $data['user_id'] = $user->id;
+
         // Habilitar la asignacion masiva
-        $posts = Post::create($request->all());
+        $posts = Post::create($data);
 
         return PostResource::make($posts);
     }
@@ -72,7 +82,8 @@ class PostController extends Controller
             'slug' => 'required|max:255|unique:posts,slug,'. $post->id,
             'extract' => 'required',
             'user_id' =>  'required|exists:users,id',
-            'category_id' => 'required|exists:users,id',
+            'category_id' => 'required|exists:categories,id',
+            'user_id' => 'required|exists:users,id'
         ]);
 
         $post->update($request->all());
