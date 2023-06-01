@@ -71,8 +71,8 @@ class PostController extends Controller
             'name' => 'required|max:255',
             'slug' => 'required|max:255|unique:posts,slug,'. $post->id,
             'extract' => 'required',
-            'user_id' =>  'required|exists:users,id',
-            'category_id' => 'required|exists:users,id',
+            'category_id' => 'required|exists:categories,id',
+            'user_id' => 'required|exists:users,id'
         ]);
 
         $post->update($request->all());
