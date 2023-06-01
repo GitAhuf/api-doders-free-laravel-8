@@ -5,6 +5,8 @@ use App\Http\Controllers\Api\RegisterController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
+use App\Http\Controllers\Api\PostController;
+
 // Route::post('register', [RegisterController::class, 'store'])->name('api.v1.register');
 
 // Route::get('categories', [CategoryController::class, 'index'])->name('api.v1.categories.index');
@@ -18,3 +20,5 @@ use Illuminate\Support\Facades\Route;
 // Route::delete('categories/{category}', [CategoryController::class, 'delete'])->name('api.v1.categories.delete');
 
 Route::apiResource('categories', CategoryController::class)->names('api.v1.categories');
+
+Route::apiResource('posts', PostController::class)->names('api.v1.posts');

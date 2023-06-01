@@ -12,6 +12,8 @@ class Post extends Model
 {
     use HasFactory, Apitrait;
 
+    protected $fillable = ['name', 'slug', 'extract', 'body', 'status', 'category_id', 'user_id'];
+
     const BORRADOR = 1;
     const PUBLICADO = 2;
 
