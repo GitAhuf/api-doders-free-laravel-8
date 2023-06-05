@@ -7,6 +7,11 @@ use Illuminate\Support\Facades\Route;
 
 use App\Http\Controllers\Api\PostController;
 
+use App\Http\Controllers\Api\Auth\LoginController;
+
+Route::post('login', [LoginController::class, 'store']);
+Route::post('register', [RegisterController::class, 'store'])->name('api.v1.register');
+
 // Route::post('register', [RegisterController::class, 'store'])->name('api.v1.register');
 
 // Route::get('categories', [CategoryController::class, 'index'])->name('api.v1.categories.index');
