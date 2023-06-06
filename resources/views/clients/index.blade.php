@@ -17,8 +17,7 @@
         <x-slot name="actions">
             <x-button>Crear</x-button>
 
-        </x-slot>
-            
+        </x-slot>            
     
         </x-form-section>        
     </x-container>
