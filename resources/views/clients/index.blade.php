@@ -15,6 +15,22 @@
             </x-slot>
             <div class="grid grid-cols-6 gap-6">        
                 <div class="col-span-6 sm:col-span-4">
+
+                    <div v-if="createForm.errors.length > 0" 
+                        class="mb-4 bg-red-100 border-red-400 text-red-700 px-4 py-3 rounded">
+                        <strong class="font-bold">
+                            Whoops!
+                        </strong>
+                        <span>
+                            Algo salio mal
+                        </span>
+                        <ul>
+                            <li v-for="error in createForm.errors">
+                                @{{error}}
+                            </li>
+                        </ul>
+                    </div>
+
                     <x-label>
                         Nombre
                     </x-label>
@@ -32,13 +48,13 @@
             </div>
 
             <x-slot name="actions">
-                <x-button v-on:click="store">Crear</x-button>
+                <x-button v-on:click="store" v-bind:disabled="createForm.disabled">Crear</x-button>
 
             </x-slot>            
     
         </x-form-section>      
 
-        <x-form-section>
+        <x-form-section v-if="clients.length > 0">
             <x-slot name="title">
                 Lista de clientes
             </x-slot>
@@ -62,10 +78,7 @@
                             <td class="flex divide-x divide-gray-300 py-2">
                                 <a class="pr-2 hover:text-blue-600 font-semibold">Editar</a>
                                 <a class="pl-2 hover:text-red-600 font-semibold">Eliminar</a>
-                                {{-- @{{client.}} --}}
-
                             </td>
-
                         </tr>
                     </tbody>
                 </table>
@@ -84,9 +97,11 @@
                 data:{
                     clients: [],
                     createForm:{
-                        errors:[],
+                        errors: [],
+                        disabled: false,
+                        errors: [],
                         name: null,
-                        redirect:null,
+                        redirect: null,
                     },
                 },
                 mounted(){
@@ -101,14 +116,27 @@
                             });
                     },
                     store(){
+
+                        this.createForm.disabled = true;
                         axios.post('/oauth/clients', this.createForm)
                             .then(response => {
                                 this.createForm.name = null;
                                 this.createForm.redirect = null;
-                                swal.fire('deleted')
+                                swal.fire(
+                                    'Creado con exito',
+                                    'El cliente se creo satisfactoriamente',
+                                    'success'
+                                )
+                                this.getClients();
+                                this.createForm.disabled = false;
                                
                             }).catch(error => {
-                                alert('No has completado los datos correspondientes');
+                                // this.createForm.errors = _.flatten(_.toArray(error.response.data.errors));
+                                this.createForm.errors = Object.values(error.response.data.errors).flat();
+                                console.log('error ',error);
+
+                                this.createForm.disabled = false;
+                                console.log('this.cerateForm.errors', this.createForm.errors);
                             }
                         )
                     }
