@@ -78,7 +78,8 @@
                                     @{{client.name}}
                                 </td>
                                 <td class="flex divide-x divide-gray-300 py-2">
-                                    <a v-on:click="edit(client)" class="pr-2 hover:text-blue-600 font-semibold">Editar</a>
+                                    <a v-on:click="show(client)" class="pr-2 hover:text-green-600 font-semibold">Ver</a>
+                                    <a v-on:click="edit(client)" class="px-2 hover:text-blue-600 font-semibold">Editar</a>
                                     <a  v-on:click="destroy(client)" class="pl-2 hover:text-red-600 font-semibold">Eliminar</a>
                                 </td>
                             </tr>
@@ -88,8 +89,7 @@
             </x-form-section>        
         </x-container>
 
-        {{-- Modal --}}
-
+        {{-- Modal editar --}}
         <x-dialog-modal modal="editForm.open">
             <x-slot name="title">Editar Cliente</x-slot>
             <x-slot name="content">
@@ -108,9 +108,7 @@
                             </li>
                         </ul>
                     </div>
-                    <div class="">
-
-                    
+                    <div class="">                    
 
                         <x-label>
                             Nombre
@@ -138,6 +136,32 @@
                 </button>
             </x-slot>
         </x-dialog-modal>
+
+        {{-- Modal show --}}
+        <x-dialog-modal modal="showClient.open">
+            <x-slot name="title">Mostrar Credenciales</x-slot>
+            <x-slot name="content">
+                <div class="space-y-2">           
+                    <p>
+                        <span class="font-semibold">CLIENTE:</span>
+                        <span v-text="showClient.name"></span>
+                    </p>    
+                    <p>
+                        <span class="font-semibold">CLIENT_ID:</span>
+                        <span v-text="showClient.id"></span>
+                    </p>    
+                    <p>
+                        <span class="font-semibold">CLIEN_SECRET:</span>
+                        <span v-text="showClient.secret"></span>
+                    </p>                       
+                </div>
+            </x-slot>
+            <x-slot name="footer">
+                <button v-on:click="showClient.open = false" type="button" class="inline-flex w-full justify-center rounded-md bg-red-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-red-500 sm:ml-3 sm:w-auto disabled:opacity-50">
+                    Cancelar
+                </button>              
+            </x-slot>
+        </x-dialog-modal>
     </div>
 
     @push('js')
@@ -147,6 +171,12 @@
                 el: "#app",
                 data:{
                     clients: [],
+                    showClient: {
+                        open: false,
+                        name: null,
+                        id: null,
+                        secret: null
+                    },
                     createForm:{
                         errors: [],
                         disabled: false,
@@ -176,6 +206,14 @@
                             });
                     },
 
+                    show(client){
+                        this.showClient.open = true;
+                        this.showClient.name = client.name;
+                        this.showClient.id = client.id;
+                        this.showClient.secret = client.secret;
+                        
+                    },
+
                     store(){
 
                         this.createForm.disabled = true;
@@ -184,11 +222,12 @@
                                 this.createForm.name = null;
                                 this.createForm.redirect = null;
                                 this.createForm.errors = [];
-                                swal.fire(
-                                    'Creado con exito',
-                                    'El cliente se creo satisfactoriamente',
-                                    'success'
-                                )
+                                // swal.fire(
+                                //     'Creado con exito',
+                                //     'El cliente se creo satisfactoriamente',
+                                //     'success'
+                                // )
+                                this.show(response.data);
                                 this.getClients();
                                 this.createForm.disabled = false;
                                
