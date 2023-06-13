@@ -3,21 +3,99 @@
         <h2 class="font-semibold text-xl text-gray-800 leading-tight">
            Clientes
         </h2>
-    </x-slot>
+    </x-slot>     
 
-    <x-container id="app" class="py-8">
-        <x-form-section class="mb-12">
-            <x-slot name="title">
-                Crear un nuevo cliente
-            </x-slot>
-            <x-slot name="description">
-                Ingrese los datos solicitados para poder crear un nuevo cliente
-            </x-slot>
-            <div class="grid grid-cols-6 gap-6">        
-                <div class="col-span-6 sm:col-span-4">
+    <div  id="app">
 
+        <x-container class="py-8">
+            {{-- Crear clientes --}}
+            <x-form-section class="mb-12">
+                <x-slot name="title">
+                    Crear un nuevo cliente
+                </x-slot>
+                <x-slot name="description">
+                    Ingrese los datos solicitados para poder crear un nuevo cliente
+                </x-slot>
+                <div class="grid grid-cols-6 gap-6">        
+                    <div class="col-span-6 sm:col-span-4">
+
+                        <div v-if="createForm.errors.length > 0" 
+                            class="mb-4 bg-red-100 border-red-400 text-red-700 px-4 py-3 rounded">
+                            <strong class="font-bold">
+                                Whoops!
+                            </strong>
+                            <span>
+                                Algo salio mal
+                            </span>
+                            <ul>
+                                <li v-for="error in createForm.errors">
+                                    @{{error}}
+                                </li>
+                            </ul>
+                        </div>
+
+                        <x-label>
+                            Nombre
+                        </x-label>
+
+                        <x-input v-model="createForm.name" type="text" class="w-full mt-1"/>
+                    </div>
+
+                    <div class="col-span-6 sm:col-span-4">
+                        <x-label>
+                            URL de redirección
+                        </x-label>
+
+                        <x-input v-model="createForm.redirect" type="text" class="w-full mt-1"/>
+                    </div>
+                </div>
+
+                <x-slot name="actions">
+                    <x-button v-on:click="store" v-bind:disabled="createForm.disabled">Crear</x-button>
+
+                </x-slot>         
+            </x-form-section>      
+            {{-- Mostrar clientes --}}
+            <x-form-section v-if="clients.length > 0">
+                <x-slot name="title">
+                    Lista de clientes
+                </x-slot>
+                <x-slot name="description">
+                    Aqui podras encontrar todos los clientes que has agregado
+                </x-slot>
+
+                <div>
+                    <table class="text-gray-600">
+                        <thead class="border-b border-gray-300">
+                            <tr class="text-left">
+                                <th class="py-2 w-full">Nombre</th>
+                                <th class="py-2">Acción</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-300">
+                            <tr v-for="client in clients">
+                                <td class="py-2">
+                                    @{{client.name}}
+                                </td>
+                                <td class="flex divide-x divide-gray-300 py-2">
+                                    <a v-on:click="edit(client)" class="pr-2 hover:text-blue-600 font-semibold">Editar</a>
+                                    <a  v-on:click="destroy(client)" class="pl-2 hover:text-red-600 font-semibold">Eliminar</a>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>  
+            </x-form-section>        
+        </x-container>
+
+        {{-- Modal --}}
+
+        <x-dialog-modal modal="editForm.open">
+            <x-slot name="title">Editar Cliente</x-slot>
+            <x-slot name="content">
+                <div class="space-y-6">        
                     <div v-if="createForm.errors.length > 0" 
-                        class="mb-4 bg-red-100 border-red-400 text-red-700 px-4 py-3 rounded">
+                        class="bg-red-100 border-red-400 text-red-700 px-4 py-3 rounded">
                         <strong class="font-bold">
                             Whoops!
                         </strong>
@@ -25,69 +103,41 @@
                             Algo salio mal
                         </span>
                         <ul>
-                            <li v-for="error in createForm.errors">
+                            <li v-for="error in editForm.errors">
                                 @{{error}}
                             </li>
                         </ul>
                     </div>
+                    <div class="">
 
-                    <x-label>
-                        Nombre
-                    </x-label>
+                    
 
-                    <x-input v-model="createForm.name" type="text" class="w-full mt-1"/>
+                        <x-label>
+                            Nombre
+                        </x-label>
+
+                        <x-input v-model="editForm.name" type="text" class="w-full mt-1"/>
+                    </div>
+
+                    <div class="">
+                        <x-label>
+                            URL de redirección
+                        </x-label>
+
+                        <x-input v-model="editForm.redirect" type="text" class="w-full mt-1"/>
+                    </div>
                 </div>
-
-                <div class="col-span-6 sm:col-span-4">
-                    <x-label>
-                        URL de redirección
-                    </x-label>
-
-                    <x-input v-model="createForm.redirect" type="text" class="w-full mt-1"/>
-                </div>
-            </div>
-
-            <x-slot name="actions">
-                <x-button v-on:click="store" v-bind:disabled="createForm.disabled">Crear</x-button>
-
-            </x-slot>            
-    
-        </x-form-section>      
-
-        <x-form-section v-if="clients.length > 0">
-            <x-slot name="title">
-                Lista de clientes
             </x-slot>
-            <x-slot name="description">
-                Aqui podras encontrar todos los clientes que has agregado
+            <x-slot name="footer">
+                <button type="button" class="inline-flex w-full justify-center rounded-md bg-red-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-red-500 sm:ml-3 sm:w-auto">
+                    Actualizar
+                </button>
+                <button type="button" class="mt-3 inline-flex w-full justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 sm:mt-0 sm:w-auto">
+                    Cancelar
+                </button>
             </x-slot>
-
-            <div>
-                <table class="text-gray-600">
-                    <thead class="border-b border-gray-300">
-                        <tr class="text-left">
-                            <th class="py-2 w-full">Nombre</th>
-                            <th class="py-2">Acción</th>
-                        </tr>
-                    </thead>
-                    <tbody class="divide-y divide-gray-300">
-                        <tr v-for="client in clients">
-                            <td class="py-2">
-                                @{{client.name}}
-                            </td>
-                            <td class="flex divide-x divide-gray-300 py-2">
-                                <a class="pr-2 hover:text-blue-600 font-semibold">Editar</a>
-                                <a  v-on:click="destroy(client)" class="pl-2 hover:text-red-600 font-semibold">Eliminar</a>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-
-            </div>
-           
-    
-        </x-form-section>        
-    </x-container>
+        </x-dialog-modal>
+    </div>
 
     @push('js')
         <script>
@@ -97,6 +147,14 @@
                 data:{
                     clients: [],
                     createForm:{
+                        errors: [],
+                        disabled: false,
+                        errors: [],
+                        name: null,
+                        redirect: null,
+                    },
+                    editForm:{
+                        open: false,
                         errors: [],
                         disabled: false,
                         errors: [],
@@ -122,6 +180,7 @@
                             .then(response => {
                                 this.createForm.name = null;
                                 this.createForm.redirect = null;
+                                this.createForm.errors = [];
                                 swal.fire(
                                     'Creado con exito',
                                     'El cliente se creo satisfactoriamente',
@@ -139,6 +198,10 @@
                                 console.log('this.cerateForm.errors', this.createForm.errors);
                             }
                         )
+                    },
+                    edit(client){
+                        this.editForm.open = true;
+
                     },
                     destroy(client){
                         Swal.fire({
@@ -163,7 +226,7 @@
                                 )
                             }
                         });
-                    }
+                    },
                 }
             });           
         </script>
