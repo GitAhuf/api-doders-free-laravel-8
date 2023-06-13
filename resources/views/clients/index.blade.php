@@ -94,7 +94,7 @@
             <x-slot name="title">Editar Cliente</x-slot>
             <x-slot name="content">
                 <div class="space-y-6">        
-                    <div v-if="createForm.errors.length > 0" 
+                    <div v-if="editForm.errors.length > 0" 
                         class="bg-red-100 border-red-400 text-red-700 px-4 py-3 rounded">
                         <strong class="font-bold">
                             Whoops!
@@ -129,10 +129,11 @@
                 </div>
             </x-slot>
             <x-slot name="footer">
-                <button type="button" class="inline-flex w-full justify-center rounded-md bg-red-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-red-500 sm:ml-3 sm:w-auto">
+                <button v-on:click="update()" 
+                        v-bind:disabled="editForm.disabled" type="button" class="inline-flex w-full justify-center rounded-md bg-red-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-red-500 sm:ml-3 sm:w-auto disabled:opacity-50">
                     Actualizar
                 </button>
-                <button type="button" class="mt-3 inline-flex w-full justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 sm:mt-0 sm:w-auto">
+                <button v-on:click="editForm.open = false" type="button" class="mt-3 inline-flex w-full justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 sm:mt-0 sm:w-auto">
                     Cancelar
                 </button>
             </x-slot>
@@ -158,6 +159,7 @@
                         errors: [],
                         disabled: false,
                         errors: [],
+                        id: null,
                         name: null,
                         redirect: null,
                     },
@@ -173,6 +175,7 @@
                                 console.log('response',response.data);
                             });
                     },
+
                     store(){
 
                         this.createForm.disabled = true;
@@ -197,12 +200,45 @@
                                 this.createForm.disabled = false;
                                 console.log('this.cerateForm.errors', this.createForm.errors);
                             }
-                        )
+                        );
                     },
+                    
                     edit(client){
+                        this.editForm.errors = [];
                         this.editForm.open = true;
-
+                        this.editForm.name = client.name;
+                        this.editForm.id = client.id;
+                        this.editForm.redirect = client.redirect;
                     },
+
+                    update(){
+
+                        this.editForm.disabled = true;
+                        axios.put('/oauth/clients/' + this.editForm.id, this.editForm)
+                            .then(response => {
+                                this.editForm.open = false;
+                                this.editForm.disabled = false;
+                                this.editForm.name = null;
+                                this.editForm.redirect = null;
+                                this.editForm.errors = [];
+                                swal.fire(
+                                    '¡Editado con exito',
+                                    'El cliente se actualizó satisfactoriamente',
+                                    'success'
+                                )
+                                this.getClients();
+                               
+                            }).catch(error => {
+                                // this.editForm.errors = _.flatten(_.toArray(error.response.data.errors));
+                                this.editForm.errors = Object.values(error.response.data.errors).flat();
+                                console.log('error ',error);
+
+                                this.editForm.disabled = false;
+                                console.log('this.cerateForm.errors', this.editForm.errors);
+                            }
+                        );
+                    },
+
                     destroy(client){
                         Swal.fire({
                             title: 'Are you sure?',
